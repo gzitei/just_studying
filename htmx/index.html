@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://unpkg.com/htmx.org@1.9.10" integrity="sha384-D1Kt99CQMDuVetoL1lrYwg5t+9QdHe7NLX/SoJYkXDFfX37iInKRy5xLSi8nO7UC" crossorigin="anonymous"></script>
+    <title>Contador simples</title>
+</head>
+<body hx-get="/setCounter" hx-trigger="load" hx-target="#counter" hx-swap="innerText">
+    <h1>Contador em HTMX</h1>
+    <div id="counter"></div>
+    <button hx-get="/increment" hx-trigger="click" hx-target="#counter" hx-swap="innerText">Increment</button>
+    <button hx-get="/decrement" hx-trigger="click" hx-target="#counter" hx-swap="innerText">Decrement</button>
+</body>
+</html>
