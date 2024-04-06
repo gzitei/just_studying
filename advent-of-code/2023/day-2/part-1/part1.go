@@ -26,6 +26,7 @@ func main() {
 
     var lower, higher int;
 
+
     for _, v := range colors {
         if (lower == 0 && higher == 0) {
             lower = v;

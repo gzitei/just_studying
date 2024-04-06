@@ -13,7 +13,7 @@ func main() {
     
     sum := 0;
 
-    file, err := os.Open("input.txt");
+    file, err := os.Open("../input.txt");
     
     if err != nil {
         fmt.Println("errou!", err)
