@@ -60,8 +60,12 @@ func main() {
     scanner := bufio.NewScanner(file)
     points := 0
     sum := 0
+    var pieces []string;
     for scanner.Scan() {
         chunk := scanner.Text()
+        pieces = append(pieces, chunk);
+    }
+    for _, chunk := range pieces {
         colonPosition := strings.Index(chunk, ":")
         dividerPosition := strings.Index(chunk, "|")
         winners := chunk[colonPosition+1:dividerPosition-1]
