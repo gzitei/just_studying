@@ -7,6 +7,7 @@ import (
 	"regexp"
 	"slices"
 	"strings"
+	"time"
 )
 
 type Hand struct {
@@ -133,23 +134,12 @@ func handPower(str, joker string) (int, []int) {
 	return power, slcTiebr
 }
 
-var wFile *os.File
-
 var cardPower []string = strings.Split("A,K,Q,J,T,9,8,7,6,5,4,3,2", ",")
 
 func main() {
-	var err error
+	start := time.Now()
 	args := os.Args
 	fileName, part, joker := args[1], args[2], args[3]
-	err = os.Remove("data.csv")
-	if err != nil {
-		panic(err)
-	}
-	wFile, err = os.OpenFile("data.csv", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-	if err != nil {
-		panic(err)
-	}
-	defer wFile.Close()
 	content := readFile(fileName)
 	var choice int
 	re := regexp.MustCompile(`[0-9]`)
@@ -165,6 +155,7 @@ func main() {
 			part2(content, joker)
 		}
 	}
+	fmt.Println("Ran in:", time.Since(start).Milliseconds())
 }
 
 func readFile(fileName string) []byte {
@@ -183,10 +174,6 @@ func multiply(t *Node, i, s *int) {
 	*i += 1
 	*s += *i * t.data.bid
 	fmt.Println(t.data.cards, "=>", t.data.power, t.data.tiebreaker, "|", t.data.bid, *i)
-	_, err := fmt.Fprintf(wFile, "%d, %s, %d, %d, %d\n", *i, t.data.cards, t.data.bid, t.data.power, t.data.tiebreaker)
-	if err != nil {
-		fmt.Println(err)
-	}
 	multiply(t.right, i, s)
 }
 
