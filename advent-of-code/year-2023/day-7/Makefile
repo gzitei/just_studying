@@ -1,4 +1,6 @@
 .PHONY: run
-args=arg1 arg2
+file=file
+part=part
+joker=joker
 run:
-	go run main.go "$(args)";
+	go run main.go "$(file)" "part-$(part)" "$(joker)";
