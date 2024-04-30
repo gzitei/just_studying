@@ -142,7 +142,7 @@ func (s Breadcrumb) distance(p Breadcrumb) int {
 
 func Challenge(content string) int {
 	paths := map[rune]Path{}
-	var start, farthest Breadcrumb
+	var start Breadcrumb
 	distance := -1
 	lines = strings.Split(content, "\n")
 	start.y = slices.IndexFunc(lines, func(s string) bool {
@@ -160,18 +160,14 @@ func Challenge(content string) int {
 		for d != 'b' {
 			next, d = Walk(current, d)
 			if next == errorPosition {
-				fmt.Println(string(direction), "=> failed!")
 				break
 			}
 			newD := start.distance(next)
-			fmt.Println(next, newD)
 			paths[direction] = append(paths[direction], next)
 			if dist == -1 || newD > dist {
 				dist = newD
-				farthest = next
 			}
 			if next == start {
-				fmt.Println(string(direction), "=> took it home!")
 				if dist > distance {
 					distance = dist
 				}
@@ -181,10 +177,9 @@ func Challenge(content string) int {
 		}
 	}
 	greaterDistance := -1
-	fmt.Println(farthest)
 	for _, v := range paths {
 		idx := int(len(v) / 2)
-		if greaterDistance < idx {
+		if idx > greaterDistance {
 			greaterDistance = idx
 		}
 	}
