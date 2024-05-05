@@ -9,6 +9,10 @@ import (
 	"time"
 )
 
+var pipeInterval = map[int]int{}
+
+var pointsInPath = []Breadcrumb{}
+
 type Vector struct {
 	start, end Breadcrumb
 }
@@ -155,27 +159,30 @@ func (s Breadcrumb) touchs(p Breadcrumb) bool {
 	return (xp+yp <= 1)
 }
 
-func CreateClusters(v Vector) []Breadcrumb {
-	res := []Breadcrumb{}
-	for i := v.start.y; i <= v.end.y; i++ {
-		line := lines[i]
-		if !strings.Contains(line, ".") {
-			continue
-		}
-		for j := v.start.x; j <= v.end.x; j++ {
-			if line[j] == '.' {
-				p := Breadcrumb{x: j, y: i}
-				res = append(res, p)
-			}
-		}
-	}
-	return res
-}
-
 func (p Breadcrumb) intercepts(v Vector) bool {
-	coord := []int{v.start.y, v.end.y}
-	slices.Sort(coord)
-	return p.y >= coord[0] && p.y <= coord[1] && v.start.x-v.end.x >= 0
+	//	if p.x > pipeInterval[p.y] {
+	//		return false
+	//	}
+	isVertical := v.start.x == v.end.x && v.start.y != v.end.y
+	makesVertical := map[byte]byte{
+		'L': '7',
+		'7': 'L',
+		'F': 'J',
+		'J': 'F',
+	}
+	ymax := int(math.Max(float64(v.start.y), float64(v.end.y)))
+	ymin := int(math.Min(float64(v.start.y), float64(v.end.y)))
+	xmax := int(math.Max(float64(v.start.x), float64(v.end.x)))
+	startByte := lines[v.start.y][v.start.x]
+	endByte := lines[v.end.y][v.end.x]
+	expectedEndByte := makesVertical[startByte]
+	isLeftSide := xmax < p.x
+	isCross := p.y >= ymin && p.y <= ymax
+	if isVertical {
+		return isLeftSide && isCross
+	} else {
+		return isLeftSide && p.y == ymax && endByte == expectedEndByte
+	}
 }
 
 var (
@@ -193,8 +200,6 @@ func Challenge(content string) int {
 	start.x = strings.Index(lines[start.y], "S")
 	maxH = len(lines[0]) - 1
 	maxV = len(lines) - 1
-	var minX, maxX, minY, maxY int
-	maxX, maxY, minY, maxY = -1, -1, -1, -1
 loop:
 	for _, direction := range "udlr" {
 		v := Vector{start: start}
@@ -203,24 +208,10 @@ loop:
 		var current, next Breadcrumb
 		current = start
 		for d != 'b' {
+			pointsInPath = append(pointsInPath, current)
 			next, d = Walk(current, d)
-			if maxX == -1 {
-				maxX = next.x
-				minX = next.x
-				maxY = next.y
-				minY = next.y
-			}
-			if next.y > maxY {
-				maxY = next.y
-			}
-			if next.y < minY {
-				minY = next.y
-			}
-			if next.x > maxX {
-				maxX = next.x
-			}
-			if next.x < minX {
-				minX = next.x
+			if pipeInterval[next.y] < next.x {
+				pipeInterval[next.y] = next.x
 			}
 			v.end = next
 			if next == errorPosition {
@@ -228,47 +219,43 @@ loop:
 			}
 			if vdir != d {
 				paths[direction] = append(paths[direction], v)
-				if v.start.x == v.end.x && v.start.y != v.end.y {
-					path = append(path, v)
-				}
 				vdir = d
 				v.start = next
 			}
 			if next == start {
 				paths[direction] = append(paths[direction], v)
-				if v.start.x == v.end.x && v.start.y != v.end.y {
-					path = append(path, v)
-				}
+				path = paths[direction]
 				break loop
 			}
 			current = next
 		}
 	}
-
-	rect.start.x = minX
-	rect.start.y = minY
-	rect.end.x = maxX
-	rect.end.y = maxY
 	response := 0
-	clusters := CreateClusters(rect)
-	for _, p := range clusters {
-		inside := 0
-		for _, vecs := range paths {
-			intVects := 0
-			for _, v := range vecs {
-				if v.start.x < p.x && p.intercepts(v) {
-					fmt.Println(p, "intercepts", v)
-					intVects++
+	for r := 0; r < len(lines); r++ {
+		for c := 0; c < len(lines[r]); c++ {
+			count := 0
+			p := Breadcrumb{x: c, y: r}
+			if slices.Contains(pointsInPath, p) {
+				continue
+			}
+			for _, v := range path {
+				if p.intercepts(v) {
+					count++
+					arrBytes := []byte(lines[r])
+					arrBytes[c] = 'O'
+					lines[r] = string(arrBytes)
 				}
 			}
-			if intVects%2 == 1 {
-				inside++
+			if count%2 != 0 {
+				response++
+				arrBytes := []byte(lines[r])
+				arrBytes[c] = 'I'
+				lines[r] = string(arrBytes)
 			}
 		}
-		if inside%2 == 1 {
-			fmt.Println(p)
-			response++
-		}
+	}
+	for _, line := range lines {
+		fmt.Println(line)
 	}
 	return response
 }
