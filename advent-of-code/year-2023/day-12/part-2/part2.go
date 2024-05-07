@@ -5,6 +5,7 @@ import (
 	"math"
 	"os"
 	"regexp"
+	"slices"
 	"strings"
 	"time"
 )
@@ -50,11 +51,17 @@ func parseData(line string) Record {
 		fmt.Sscanf(n, "%d", &num)
 		req = append(req, num)
 	}
-	return Record{
-		text:    split[0],
-		changes: changes,
-		req:     req,
+	r := Record{
+		text:    "",
+		changes: []int{},
+		req:     []int{},
 	}
+	for range 5 {
+		r.text += split[0]
+		r.changes = slices.Concat(r.changes, changes)
+		r.req = slices.Concat(r.req, req)
+	}
+	return r
 }
 
 func (r Record) combinations() int {
