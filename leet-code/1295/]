@@ -3,8 +3,8 @@ package main
 import "math"
 
 /*
-   Runs in 2ms - Beats 69.83%
-   Uses 2.96 MB - Beats 70.69%
+    Runs in 2ms - Beats 69.83%
+    Uses 2.96 MB - Beats 70.69%
 */
 
 func findNumbers(nums []int) int {
