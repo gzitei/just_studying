@@ -1,42 +1,33 @@
 package main
 
 /*
-	Runs in 178ms, beats 8.33%
-	Uses 6.68MB, beats 95.83%
+	Runs in 19ms, beats 91.67%
+	Uses 6.66MB, beats 95.83%
 */
 
 import (
 	"slices"
 )
 
-func minimumPushes(word string) (n int) {
-	n = 0
-	size := 0
-
-	var strokes = map[byte]int{}
+func minimumPushes(word string) int {
+	n := 0
+	s := make([]int, 26)
 	for i := 0; i < len(word); i++ {
-		if strokes[word[i]] == 0 {
-			size++
+		s[word[i]-'a'] += 1
+	}
+
+	slices.SortFunc(s, func(a, b int) int {
+		return b - a
+	})
+
+	for i := 0; i < len(s); i++ {
+		if s[i] == 0 {
+			break
 		}
-		strokes[word[i]] += 1
+		n += ((i / 8) + 1) * s[i]
 	}
 
-	if size <= 8 {
-		n = len(word)
-		return
-	}
-
-	var clicks = make([]int, 0, size)
-	for _, v := range strokes {
-		clicks = append(clicks, v)
-	}
-
-	slices.Sort(clicks)
-
-	for i := len(clicks) - 1; i >= 0; i-- {
-		n += (((len(clicks) - 1 - i) / 8) + 1) * clicks[i]
-	}
-	return
+	return n
 }
 
 func main() {}
